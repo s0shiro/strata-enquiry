@@ -42,6 +42,7 @@ export function useAnalyseEnquiry() {
     setIsLoading(true);
     setError("");
     setLastSubmittedEnquiry(enquiryToSubmit);
+    setEnquiry("");
 
     try {
       const nextResult = await analyseEnquiry(enquiryToSubmit);

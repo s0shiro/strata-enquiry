@@ -21,7 +21,6 @@ function EnquiryForm({ enquiry, onChange, onSubmit, isLoading, error, remainingC
     }
 
     event.currentTarget.form?.requestSubmit();
-    onChange("");
   }
 
   return (
