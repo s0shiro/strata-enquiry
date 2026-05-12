@@ -1,0 +1,12 @@
+{
+  "name": "strata-enquiry-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "heroku-postbuild": "cd backend && npm install",
+    "start": "cd backend && npm start"
+  }
+}
