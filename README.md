@@ -1,23 +1,17 @@
-# Strata AI Enquiry Tool (Prototype Scaffold)
+# Strata AI Enquiry Tool
 
-This repository contains a full MVP scaffold for the AI Client Enquiry Processing tool:
+This repository contains the prototype for the Strata AI Enquiry Tool, designed to help staff efficiently analyse and respond to client enquiries.
 
-- `frontend/` — React + Vite + Tailwind UI
-- `backend/` — Express API + DigitalOcean Inference integration layer
+## Architecture
 
-## What it does
+- **Frontend:** A React 18 + Vite + Tailwind application for the staff-facing UI.
+- **Backend:** An Express 5 API that securely handles communication with the DigitalOcean Inference API via the OpenAI SDK.
 
-Staff can paste an enquiry, click **Analyse Enquiry**, and receive:
+## Setup & Running the Application
 
-- Enquiry type
-- Priority
-- Summary
-- Recommended action
-- Suggested response
+There is no root-level setup; the frontend and backend operate as separate services.
 
-## Project setup
-
-### 1) Backend
+### 1. Backend Setup
 
 ```bash
 cd backend
@@ -25,10 +19,14 @@ cp .env.example .env
 npm install
 npm run dev
 ```
+By default, the backend runs on `http://localhost:5000`.
 
-Backend default URL: `http://localhost:5000`
+**Required Environment Variables (`backend/.env`):**
+- `DO_INFERENCE_API_KEY`: Your DigitalOcean inference key.
+- `DO_INFERENCE_MODEL`: Your selected model name.
+- `DO_INFERENCE_BASE_URL`: Defaults to `https://inference.do-ai.run/v1`
 
-### 2) Frontend
+### 2. Frontend Setup
 
 ```bash
 cd frontend
@@ -36,66 +34,15 @@ cp .env.example .env
 npm install
 npm run dev
 ```
+By default, the frontend runs on `http://localhost:5173`.
 
-Frontend default URL: `http://localhost:5173`
+**Environment Variables (`frontend/.env`):**
+- `VITE_API_URL`: Points to the backend (defaults to `http://localhost:5000`).
 
-## Environment variables
+## Design Decisions
 
-### Backend (`backend/.env`)
-
-```env
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-DO_INFERENCE_API_KEY=your_digitalocean_inference_key_here
-DO_INFERENCE_MODEL=your_selected_model_name_here
-DO_INFERENCE_BASE_URL=https://inference.do-ai.run/v1
-```
-
-### Frontend (`frontend/.env`)
-
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-## API
-
-### `POST /api/analyse-enquiry`
-
-Request:
-
-```json
-{
-  "enquiry": "Client enquiry text here"
-}
-```
-
-Success response:
-
-```json
-{
-  "type": "General Question",
-  "priority": "Normal",
-  "summary": "...",
-  "recommended_action": "...",
-  "suggested_response": "..."
-}
-```
-
-Error examples:
-
-```json
-{ "message": "Enquiry text is required." }
-```
-
-```json
-{ "message": "Enquiry is too long. Maximum length is 5000 characters." }
-```
-
-```json
-{ "message": "The AI response was not valid JSON.", "raw": "..." }
-```
-
-```json
-{ "message": "Failed to analyse enquiry." }
-```
+- **Strict Schema Enforcement:** The backend enforces a strict JSON contract with the AI model via prompt engineering. It validates the response shape (`type`, `priority`, `summary`, `recommended_action`, `suggested_response`) before sending it to the frontend. This prevents UI rendering errors from unpredictable LLM outputs.
+- **Backend Proxy for AI Calls:** The frontend never communicates directly with the AI provider. This keeps the API keys secure and allows the backend to handle input validation, prompt construction, and error parsing.
+- **Input Validation:** A hard limit of 5000 characters is enforced on both the frontend (UX) and backend (security) to prevent abuse and excessive token usage.
+- **Minimalist UI & Separation of Concerns:** The frontend uses Tailwind for a clean, slate-based palette. State management (`useAnalyseEnquiry`), API calls (`api.js`), and presentational components are cleanly separated to make future maintenance and testing easier.
+- **Fail-Fast Configuration:** The backend is designed to crash early during startup if critical DigitalOcean Inference environment variables are missing, rather than failing silently or causing runtime errors when users submit forms.
